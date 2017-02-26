@@ -7,7 +7,8 @@ Created on Sun Feb 26 15:44:13 2017
 
 import numpy as np
 import pandas as pd
-import sklearn import cluster
+from sklearn import cluster
+from scipy.misc import imread
 import random
 import glob
 import cv2
@@ -20,6 +21,9 @@ def loadNImages(n,folder):
     imageFiles = sorted(glob.glob(folder), key=lambda x: random.random())[:n]
     return imageFiles    
 
+def readImages(images):
+    return np.array([imread(img) for img in images])    
+    
 def resizeImages(images):
     return [cv2.resize(img, (224,224), cv2.INTER_LINEAR) for img in images]
     
@@ -49,7 +53,7 @@ def computeDistances(images):
     distances = np.zeros((len(images), len(images)))
     for i, img in enumerate(images):
         all_imgs = [(img,img2) for img2 in images]
-        dists = map(compare, all_imgs)
+        dists = list(map(compare, all_imgs))
         distances[i, :] = dists
     cls = cluster.DBSCAN(metric='precomputed', min_samples=5, eps=0.6)
     y = cls.fit_predict(distances)
